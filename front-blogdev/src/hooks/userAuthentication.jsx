@@ -5,8 +5,23 @@ import{
     signInWithEmailAndPassword,
     updateProfile,
     signOut,
+    GoogleAuthProvider,
 } from 'firebase/auth';
 import { useState, useEffect } from 'react'
+
+const googleProvider = new GoogleAuthProvider();
+
+export const signInWithGoogle = async () => {
+  const auth = getAuth();
+    try {
+        const result = await signInWithPopup(auth, googleProvider);
+        console.log('Usuário autenticado com o Google:', result.user);
+        return result.user;
+    } catch (error) {
+        console.error('Erro ao autenticar com o Google:', error.message);
+        throw error;
+    } 
+};
 
 export const userAuthentication = () =>{
     const [error, setError] = useState(null)
@@ -60,6 +75,40 @@ export const userAuthentication = () =>{
         }
     }
     
+    const logout = () =>{
+        
+        checkIfIsCancelled()
+        signOut(auth)
+    }
+
+    const login = async (data) =>{
+        checkIfIsCancelled()
+        
+        setLoading(true)
+        setError(false)
+
+        try{
+            await signInWithEmailAndPassword(auth, data.email, data.password)
+            setLoading(false)
+        }catch(error){
+            console.error(error.message)
+            console.table(typeof error.message)
+
+            let systemErrorMessage
+
+            if(error.message.includes("invalid-login-credentials")){
+                systemErrorMessage = "Este usuário não está cadastrado"
+            }else if(error.message.includes("wrong-password")){
+                systemErrorMessage = "Há erro com suas credenciais."
+            }else{
+                systemErrorMessage = "Ocorreu um error, tente novamente mais tarde"
+            }
+            
+            setLoading(false)
+            setError(systemErrorMessage) 
+        }
+    }
+
     useEffect(() => {
         return () => setCancelled(true)
     }, [])
@@ -68,6 +117,8 @@ export const userAuthentication = () =>{
         auth,
         createUser,
         error,
-        loading
+        loading,
+        logout,
+        login
     }
 }

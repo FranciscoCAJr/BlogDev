@@ -50,7 +50,7 @@ const Register = () => {
             required
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
-            placeholder="Entre con seu nomade nome"></input>
+            placeholder="Entre com seu nome"></input>
         </label>
         <label>
           <span>E-mail: </span>
